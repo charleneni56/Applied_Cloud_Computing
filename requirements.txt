@@ -1,3 +1,0 @@
-Requirement text file
-Jupiter notebook lab2
-
