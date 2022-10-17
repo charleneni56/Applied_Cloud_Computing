@@ -1,0 +1,32 @@
+version: '3.9'
+
+## ENVdoc, PORT MAPPING, NETWORK, VOLUME, NAME
+services:
+  api:
+    build: ./api/
+    hostname: api
+    environment:
+      - API_HOST=${API_HOST}
+      - API_PORT=${API_PORT}
+      - END_POINT=${END_POINT}
+    command: python api.py
+    volumes:
+      - ./api/code:/app
+    ports:
+      - "${API_PORT}:${API_PORT}"
+  consumer:
+    build: ./consumer/
+    hostname: consumer
+    environment:
+      - API_PORT=${API_PORT}
+      - CONSUMER_HOST=${CONSUMER_HOST}
+      - CONSUMER_PORT=${CONSUMER_PORT}
+      - END_POINT=${END_POINT}
+    command: python consumer.py
+    volumes:
+      - ./consumer/code:/app
+    ports:
+      - "${CONSUMER_PORT}:${CONSUMER_PORT}"
+
+
+#docker-compose up
