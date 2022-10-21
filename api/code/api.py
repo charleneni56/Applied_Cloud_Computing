@@ -1,5 +1,5 @@
 import os
-import random
+import psycopg2
 
 from flask import Flask, json
 app = Flask(__name__)
@@ -13,30 +13,21 @@ class JSONConstants:
 def hello_world():
     return 'Hello World!'
 
-## random recommend 15 meals from Khao Khan Thai Kitchen
-@app.route('/meal_recomm', methods = ['GET'])
-def meal_recomm(): 
-    meals = [
-        ("Thai Fish Cake", "$13.00"),
-        ("Thai Samosa", "$13.00"),
-        ("Chicken Satay", "$13.95"),
-        ("Tom Yum Soup", "$17.00"),
-        ("Pineapple Fried Rice", "$17.00"),
-        ("Green Curry", "$17.00"),
-        ("Pad Thai", "$16.00"),
-        ("Khao Moo Krob Cripsy Pork", "$17.00"),
-        ("Hor Mok Pla Curry Fish", "$20.00"),
-        ("Papaya Salad Thai Style", "$15.00"),
-        ("Mango Sticky Rice", "$12.00"),
-        ("Thai Ice Tea", "$5.50"),
-        ("Strawberry Lemonade", "$3.50"),
-        ("Thai Ice Coffee", "$5.50"),
-        ("Sparkling Water", "$4.50"),
-    ]
+@app.route('/meal_recomm')
+def recommend_meal():
+    conn = psycopg2.connect(database=os.environ.get('POSTGRES_USER'),
+                            user=os.environ.get('POSTGRES_USER'),
+                            password=os.environ.get('POSTGRES_PASSWORD'),
+                            host=os.environ.get('DB_HOST'),
+                            port=os.environ.get('DB_PORT'))
 
-    selectedMealIndex = int(random.uniform(0, len(meals)))
-    selectedMeal = meals[selectedMealIndex] 
-
+    cursor = conn.cursor()
+    query = 'SELECT meal_name, meal_price FROM meal_list ORDER BY random() limit 1;'
+    cursor.execute(query)
+    result = cursor.fetchall()
+    conn.close()
+    
+    selectedMeal = result[0]
     data = {
         JSONConstants.nameKey: selectedMeal[0],
         JSONConstants.priceKey: selectedMeal[1]
@@ -46,6 +37,7 @@ def meal_recomm():
         status=200,
         mimetype='application/json'
     )
+
 
 if __name__ == '__main__':
     print("api starting...")
@@ -57,6 +49,3 @@ if __name__ == '__main__':
     
     ## setting up host and port 
     app.run(host=end_point, port=port, debug=True)
-    
-
-# run python api.py runserver 

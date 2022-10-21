@@ -1,32 +1,54 @@
 version: '3.9'
 
-## ENVdoc, PORT MAPPING, NETWORK, VOLUME, NAME
 services:
   api:
     build: ./api/
     hostname: api
     environment:
-      - API_HOST=${API_HOST}
-      - API_PORT=${API_PORT}
       - END_POINT=${END_POINT}
+      - API_PORT=${API_PORT}
+      - DB_HOST=${DB_HOST}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_PORT=${DB_PORT}
     command: python api.py
     volumes:
-      - ./api/code:/app
+      - ./api/code:/app/
     ports:
       - "${API_PORT}:${API_PORT}"
+      
   consumer:
-    build: ./consumer/
+    build:  ./consumer/
     hostname: consumer
     environment:
-      - API_PORT=${API_PORT}
-      - CONSUMER_HOST=${CONSUMER_HOST}
-      - CONSUMER_PORT=${CONSUMER_PORT}
       - END_POINT=${END_POINT}
+      - API_HOST=${API_HOST}
+      - API_PORT=${API_PORT}
+      - CONSUMER_PORT=${CONSUMER_PORT}
     command: python consumer.py
     volumes:
-      - ./consumer/code:/app
+      - ./consumer/code:/app/
     ports:
       - "${CONSUMER_PORT}:${CONSUMER_PORT}"
 
+  db_admin:
+    image: dpage/pgadmin4
+    hostname: ${DBA_HOST}
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGA_ADMIN_NAME}
+      - PGADMIN_DEFAULT_PASSWORD=${PGA_ADMIN_PASS}
+    ports:
+      - "${PGA_PORT}:${PGA_PORT}"
 
-#docker-compose up
+  db:
+    image: postgres:12.12
+    hostname: ${DB_HOST}
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    volumes: 
+      - ./db/data:/var/lib/postgresql/data/
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql

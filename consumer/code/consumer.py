@@ -1,8 +1,10 @@
 import os
 import json
 import requests
-from flask import Flask, redirect, url_for, request, render_template
+
+from flask import Flask, render_template
 app = Flask(__name__)
+
 ## starting point intro
 @app.route('/success/<name>')
 def success(name):
@@ -24,3 +26,4 @@ if __name__ == '__main__':
    print("port: " + port)
 
    app.run(host=end_point, port=port, debug=True)
+   
