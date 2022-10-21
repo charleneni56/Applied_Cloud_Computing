@@ -2,6 +2,4 @@
 
 week5
 
-re:
-Understand whether you have to create a network that allows the consumer to listen to the api:
-* when we run docker-compose up, there's a default network connecting the containers, we just need to call it out and run it.
+output link -- http://127.0.0.1:3000
